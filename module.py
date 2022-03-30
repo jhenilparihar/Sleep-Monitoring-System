@@ -5,40 +5,19 @@ import time
 from time import strftime
 import json
 
-dictionary = {
-    "head": {
-        "total duration": {
-            "Front": 0,
-            "Right": 0,
-            "Left": 0
-        },
-        "max uninterrupted sleep": {
-            "Front": 0,
-            "Right": 0,
-            "Left": 0
-        },
-        "timestamp": {
-            "Front": [],
-            "Right": [],
-            "Left": []
-        }
-    },
-    "pose": {
-        "timestamp": [],
-        "id": [],
-        "max uninterrupted duration": 0,
-        "total uninterrupted duration": 0
-    }
-}
 
+f = open('log.json')
 
-cap = cv2.VideoCapture(0)
+dictionary = json.load(f)
+f.close()
+
+cap = cv2.VideoCapture(1)
 
 cnt = 0
 previous_list = []
 
 side = "Front"
-previous_time1 = previous_time= time.time()
+previous_time1 = previous_time = time.time()
 count = 0
 
 
@@ -122,7 +101,7 @@ while cap.isOpened():
     json_object = json.dumps(dictionary, indent=4)
 
     # Writing to sample.json
-    with open("sample.json", "w") as outfile:
+    with open("log.json", "w") as outfile:
         outfile.write(json_object)
 
     cv2.imshow("Frame", image)
@@ -132,7 +111,7 @@ while cap.isOpened():
     if cv2.waitKey(10) & 0xFF == ord('q'):
         break
 
-print(dictionary)
+# print(dictionary)
 cap.release()
 cv2.destroyAllWindows()
 
