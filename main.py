@@ -1,11 +1,6 @@
 import numpy as np
 from flask import Flask, render_template, request, url_for, redirect, flash, send_from_directory
 import matplotlib.pyplot as plt
-import math
-import cv2
-import mediapipe as mp
-import time
-from time import strftime
 import json
 
 app = Flask(__name__)
@@ -13,7 +8,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    f = open('sample.json')
+    f = open('log.json')
 
     data = json.load(f)
     f.close()
@@ -22,21 +17,26 @@ def home():
     r = len(data["head"]["timestamp"]["Right"])
     l = len(data["head"]["timestamp"]["Left"])
 
-    if f > r and l:
+    f_ = data["head"]["total duration"]["Front"]
+    r_ = data["head"]["total duration"]["Right"]
+    l_ = data["head"]["total duration"]["Left"]
+
+    if f_ > r_ and l_:
         side = "Front"
-    elif l > r and f:
+    elif l_ > r_ and f_:
         side = "Left"
     else:
         side = "Right"
 
-    return render_template("index.html",moves=f+r+l+len(data["pose"]["timestamp"]),
-                           sleep=80,un=(data["pose"]["max uninterrupted duration"])/60,
+    return render_template("index.html", moves=f+r+l+len(data["pose"]["timestamp"]),
+                           sleep=round(data["head"]["total duration"][side] / 60, 2),
+                           un=round((data["pose"]["max uninterrupted duration"])/60, 2),
                            side=side)
 
 
 @app.route('/graph1')
 def graph1():
-    f = open('sample.json')
+    f = open('log.json')
 
     data = json.load(f)
     f.close()
@@ -64,9 +64,10 @@ def graph1():
 
     return redirect("/")
 
+
 @app.route('/graph2')
 def graph2():
-    f = open('sample.json')
+    f = open('log.json')
 
     data = json.load(f)
     f.close()
@@ -90,20 +91,21 @@ def graph2():
     return redirect("/")
 
 
-
-@app.route('/login')
-def login():
-
-
-
-    return redirect("/")
-
-
 @app.route('/monitor')
 def monitor():
     # start_time=request.form["start_time"]
-    file = open(r'module.py', 'r').read()
-    return exec(file)
+    Data = [[5, 6, 8], [10, 11, 14], [12, 10, 15]]
+
+    X = np.arange(3)
+    plt.plot(X, Data[0], color='b', label='Toy 1')
+    plt.plot(X, Data[1], color='g', label='Toy 2')
+    plt.plot(X, Data[2], color='r', label='Toy 3')
+    plt.legend(loc='upper left')
+    plt.title("Previous Data")
+    plt.xlabel("Movement")
+    plt.ylabel("Time")
+    plt.show()
+    return redirect("/")
 
 
 if __name__ == "__main__":
